@@ -1,0 +1,27 @@
+GET http://localhost:5140/api/Especialidad
+
+###
+
+GET http://localhost:5140/api/Especialidad/2
+
+###
+
+POST http://localhost:5140/api/Especialidad/
+Content-Type: application/json
+
+{
+  "Nombre": "Dsa"
+}
+
+###
+
+PUT http://localhost:5140/api/Especialidad/1
+Content-Type: application/json
+
+{
+  "Nombre": "Fisioterapeuta"
+}
+
+###
+
+DELETE http://localhost:5140/api/Especialidad/1
