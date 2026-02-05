@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ProbarGiladassss.Data.Models;
+using ProbarGiladassss.DTOs;
+using ProbarGiladassss.Repositories.Interfaces;
 
 namespace ProbarGiladassss.Controllers;
 
@@ -8,8 +10,9 @@ namespace ProbarGiladassss.Controllers;
 [Route("api/[controller]")]
 public class EspecialidadController : ControllerBase
 {
-    private readonly TestingContext _context;
-    public EspecialidadController(TestingContext context)
+    private readonly IEspecialidadRepository _context;
+
+    public EspecialidadController(IEspecialidadRepository context)
     {
         _context = context;
     }
@@ -17,55 +20,61 @@ public class EspecialidadController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        var dtos = await _context.Especialidads
-            .Select(e => new EspecialidadDto(e.Nombre))
-            .ToListAsync();
-        return Ok(dtos);
+        try
+        {
+            var dtos = await _context.GetAllEspecialidadesAsync();
+            return Ok(dtos);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, e.Message);
+        }
     }
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById([FromRoute] int id)
     {
-        var dto = await _context.Especialidads
-            .Where(e => e.Id == id)
-            .Select(e => new EspecialidadDto(e.Nombre))
-            .FirstOrDefaultAsync();
-
-        return Ok(dto);
+        try
+        {
+            var dto = await _context.GetEspecialidadByIdAsync(id);
+            return dto is null ? NotFound() : Ok(dto);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, e.Message);
+        }
     }
 
     [HttpPost]
-    public async Task<bool> Create(EspecialidadDto dto)
+    public async Task<IActionResult> Create(EspecialidadDto dto)
     {
-        Especialidad especialidadNueva = new Especialidad()
+        try
         {
-            Nombre = dto.Nombre
-        };
-        await _context.Especialidads.AddAsync(especialidadNueva);
-        return await _context.SaveChangesAsync() > 0;
+            var especialidad = await _context.CreateEspecialidadAsync(dto);
+            var resultDto = new EspecialidadDto(especialidad.Nombre);
+
+            return CreatedAtAction(
+                nameof(GetById),
+                new { id = especialidad.Id },
+                resultDto);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, e.Message);
+        }
+        
     }
 
     [HttpPut("{id}")]
     public async Task<IActionResult> Update([FromRoute] int id, [FromBody] EspecialidadDto dto)
     {
-        var encontrado = await _context.Especialidads.FindAsync(id);
-        if (encontrado is null)
-            return NotFound();
-        encontrado.Nombre = dto.Nombre;
-        await _context.SaveChangesAsync();
-        return Ok("Un éxito");
+        var updated = await _context.UpdateEspecialidadAsync(id, dto);
+        return updated ? NoContent() : NotFound();
     }
 
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete([FromRoute] int id)
     {
-        var encontrado = await _context.Especialidads.FindAsync(id);
-        if (encontrado is null)
-            return NotFound();
-        _context.Especialidads.Remove(encontrado);
-        return Ok(await _context.SaveChangesAsync());
+        var deleted = await _context.DeleteEspecialidadAsync(id);
+        return deleted ? NoContent() : NotFound();
     }
-
-    public record EspecialidadDto(string Nombre);
-
-
 }

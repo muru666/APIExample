@@ -10,9 +10,9 @@ POST http://localhost:5140/api/Medico
 Content-Type: application/json
 
 {
-  "Nombre": "Marcelin",
-  "Apellido": "Herrerrinha",
-  "EspecialidadId": 3
+  "Nombre": "Sofia",
+  "Apellido": "Apellido",
+  "EspecialidadId": 5
 }
 
 ###

@@ -2,7 +2,7 @@ GET http://localhost:5140/api/Especialidad
 
 ###
 
-GET http://localhost:5140/api/Especialidad/2
+GET http://localhost:5140/api/Especialidad/8
 
 ###
 
@@ -10,18 +10,18 @@ POST http://localhost:5140/api/Especialidad/
 Content-Type: application/json
 
 {
-  "Nombre": "Dsa"
+  "Nombre": "Manólogo"
 }
 
 ###
 
-PUT http://localhost:5140/api/Especialidad/1
+PUT http://localhost:5140/api/Especialidad/8
 Content-Type: application/json
 
 {
-  "Nombre": "Fisioterapeuta"
+  "Nombre": "Piesólogo"
 }
 
 ###
 
-DELETE http://localhost:5140/api/Especialidad/1
+DELETE http://localhost:5140/api/Especialidad/8

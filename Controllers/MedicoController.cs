@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ProbarGiladassss.Data.Models;
+using ProbarGiladassss.DTOs;
 
 namespace ProbarGiladassss.Controllers;
 
@@ -80,9 +81,7 @@ public class MedicoController : ControllerBase
         return rows == 0 ? NotFound() : Ok("Borrado con éxito");
 
     }
-    public record MedicoCreateDto(string Nombre, string Apellido, int EspecialidadId);
-
-    public record MedicoOutputDto(string Nombre, string Apellido, string Especialidad);
+   
 
 
 }

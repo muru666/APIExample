@@ -146,3 +146,4 @@
 /home/agus/Desktop/ASDDSADSA/ProbarGiladassss/bin/Debug/net10.0/Microsoft.AspNetCore.OpenApi.dll
 /home/agus/Desktop/ASDDSADSA/ProbarGiladassss/bin/Debug/net10.0/Microsoft.OpenApi.dll
 /home/agus/Desktop/ASDDSADSA/ProbarGiladassss/obj/Debug/net10.0/ProbarGiladassss.MvcApplicationPartsAssemblyInfo.cs
+/home/agus/Desktop/ASDDSADSA/ProbarGiladassss/obj/Debug/net10.0/ProbarGiladassss.sourcelink.json
