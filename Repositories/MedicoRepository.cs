@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore;
+using ProbarGiladassss.Data.Models;
 using ProbarGiladassss.DTOs;
 using ProbarGiladassss.Repositories.Interfaces;
 
@@ -5,28 +7,59 @@ namespace ProbarGiladassss.Repositories;
 
 public class MedicoRepository: IMedicoRepository
 {
-    public Task<List<MedicoOutputDto>> GetAllMedicosAsync()
+    private readonly TestingContext _context;
+
+    public MedicoRepository(TestingContext context)
     {
-        throw new NotImplementedException();
+        _context = context;
+    }
+    
+    public async Task<List<MedicoOutputDto>> GetAllMedicosAsync()
+    {
+        return await _context.Medicos
+            .Select(m => new MedicoOutputDto(m.Nombre, m.Apellido, m.EspecialidadNavigation.Nombre))
+            .ToListAsync();
     }
 
-    public Task<MedicoOutputDto> GetMedicoByIdAsync(int id)
+    public async Task<MedicoOutputDto?> GetMedicoByIdAsync(int id)
     {
-        throw new NotImplementedException();
+        return await _context.Medicos
+            .Where(m => m.Id == id)
+            .Select(m => new MedicoOutputDto(m.Nombre, m.Apellido, m.EspecialidadNavigation.Nombre))
+            .FirstOrDefaultAsync();
     }
 
-    public Task<bool> CreateMedicoAsync(MedicoCreateDto dto)
+    public async Task<Medico> CreateMedicoAsync(MedicoCreateDto dto)
     {
-        throw new NotImplementedException();
+        Medico medicoNuevo = new Medico()
+        {
+            Nombre = dto.Nombre,
+            Apellido = dto.Apellido,
+            Especialidad = dto.EspecialidadId
+        };
+        await _context.Medicos.AddAsync(medicoNuevo);
+        await _context.SaveChangesAsync();
+        return medicoNuevo;
     }
 
-    public Task<bool> UpdateMedicoAsync(int id, MedicoCreateDto dto)
+    public async Task<bool> UpdateMedicoAsync(int id, MedicoCreateDto dto)
     {
-        throw new NotImplementedException();
+        
+        var rows = await _context.Medicos
+            .Where(m => m.Id == id)
+            .ExecuteUpdateAsync<Medico>(s => s
+                .SetProperty(m => m.Nombre, dto.Nombre)
+                .SetProperty(m => m.Apellido, dto.Apellido)
+                .SetProperty(m => m.Especialidad, dto.EspecialidadId)
+            );
+        return rows > 0;
     }
 
-    public Task<bool> DeleteMedicoAsync(int id)
+    public async Task<bool> DeleteMedicoAsync(int id)
     {
-        throw new NotImplementedException();
+        var rows = await _context.Medicos
+            .Where(m => m.Id == id)
+            .ExecuteDeleteAsync();
+        return rows > 0;
     }
 }

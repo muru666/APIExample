@@ -14,8 +14,6 @@ public class EspecialidadRepository : IEspecialidadRepository
         _context = context;
     }
     
-    
-    
     public async Task<List<EspecialidadDto>> GetAllEspecialidadesAsync()
     {
         return await _context.Especialidads

@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ProbarGiladassss.Data.Models;
 using ProbarGiladassss.DTOs;
+using ProbarGiladassss.Repositories.Interfaces;
 
 namespace ProbarGiladassss.Controllers;
 
@@ -9,31 +10,27 @@ namespace ProbarGiladassss.Controllers;
 [Route("api/[controller]")]
 public class MedicoController : ControllerBase
 {
-    private readonly TestingContext _context;
+    private readonly IMedicoRepository _context;
+    private readonly IEspecialidadRepository _especialidadContext;
 
-    public MedicoController(TestingContext context)
+    public MedicoController(IMedicoRepository context, IEspecialidadRepository especialidadContext)
     {
         _context = context;
+        _especialidadContext = especialidadContext;
     }
 
 
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        var dtos = await _context.Medicos
-            .Select(m => new MedicoOutputDto(m.Nombre, m.Apellido, m.EspecialidadNavigation.Nombre))
-            .ToListAsync();
+        var dtos = await _context.GetAllMedicosAsync();
         return Ok(dtos);
     }
 
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById([FromRoute] int id)
     {
-        var dto = await _context.Medicos
-            .Where(m => m.Id == id)
-            .Select(d => new MedicoOutputDto(d.Nombre, d.Apellido, d.EspecialidadNavigation.Nombre))
-            .FirstOrDefaultAsync();
-        
+        var dto = await _context.GetMedicoByIdAsync(id);
         return dto == null ? NotFound() : Ok(dto);
     }
     
@@ -42,43 +39,47 @@ public class MedicoController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] MedicoCreateDto dto)
     {
-        Especialidad especialidad = await _context.Especialidads.FindAsync(dto.EspecialidadId);
+
+        var especialidad = await _especialidadContext.GetEspecialidadByIdAsync(dto.EspecialidadId);
         if (especialidad is null)
-            return NotFound("No existe la especialidad ingresada");
+            return BadRequest("La especialidad no existe.");
+        
+        var medico = await _context.CreateMedicoAsync(dto);
+        var outputDto = new MedicoOutputDto(
+            dto.Nombre, 
+            dto.Apellido, 
+            especialidad.Nombre);
+        
+        return CreatedAtAction(
+            nameof(GetById),
+            new { id = medico.Id },
+            outputDto);
 
 
-        Medico medico = new Medico()
-        {
-            Nombre = dto.Nombre,
-            Apellido = dto.Apellido,
-            Especialidad = dto.EspecialidadId
-        };
+        /*
+         *var especialidad = await _context.CreateEspecialidadAsync(dto);
+           var resultDto = new EspecialidadDto(especialidad.Nombre);
 
-        await _context.Medicos.AddAsync(medico);
-        await _context.SaveChangesAsync();
-        return Ok("Creado con éxito");
+           return CreatedAtAction(
+               nameof(GetById),
+               new { id = especialidad.Id },
+               resultDto);
+         *
+         */
     }
 
-    [HttpPut("{id}")]
+    [HttpPut("{id:int}")]
     public async Task<IActionResult> Update([FromRoute] int id, [FromBody] MedicoCreateDto dto)
     {
-        var rows = await _context.Medicos
-            .Where(m => m.Id == id)
-            .ExecuteUpdateAsync<Medico>(s => s
-                .SetProperty(m => m.Nombre, dto.Nombre)
-                .SetProperty(m => m.Apellido, dto.Apellido)
-                .SetProperty(m => m.Especialidad, dto.EspecialidadId)
-            );
-        return rows == 0 ? NotFound() : Ok("Actualizado");
+        var updated = await _context.UpdateMedicoAsync(id, dto);
+        return updated ? NotFound() : NoContent();
     }
 
     [HttpDelete("{id}")]
     public async Task<IActionResult> Update([FromRoute] int id)
     {
-        var rows = await _context.Medicos
-            .Where(m => m.Id == id)
-            .ExecuteDeleteAsync();
-        return rows == 0 ? NotFound() : Ok("Borrado con éxito");
+        var deleted = await _context.DeleteMedicoAsync(id);
+        return deleted ? NoContent() : NotFound();
 
     }
    

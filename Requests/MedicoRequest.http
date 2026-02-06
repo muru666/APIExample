@@ -2,7 +2,7 @@ GET http://localhost:5140/api/Medico
 
 ###
 
-GET http://localhost:5140/api/Medico/1
+GET http://localhost:5140/api/Medico/4
 
 ###
 
@@ -10,14 +10,14 @@ POST http://localhost:5140/api/Medico
 Content-Type: application/json
 
 {
-  "Nombre": "Sofia",
-  "Apellido": "Apellido",
-  "EspecialidadId": 5
+  "Nombre": "Facun",
+  "Apellido": "Do",
+  "EspecialidadId": 7
 }
 
 ###
 
-PUT http://localhost:5140/api/Medico/1
+PUT http://localhost:5140/api/Medico/0
 Content-Type: application/json
 
 {
@@ -28,4 +28,4 @@ Content-Type: application/json
 
 ###
 
-DELETE http://localhost:5140/api/Medico/1
+DELETE http://localhost:5140/api/Medico/4
